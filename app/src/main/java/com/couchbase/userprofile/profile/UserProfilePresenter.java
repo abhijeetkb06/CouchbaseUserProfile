@@ -36,9 +36,9 @@ public class UserProfilePresenter implements UserProfileContract.UserActionsList
 
         // tag::livequerybuilder[]
         Query query = QueryBuilder
-                        .select(SelectResult.all())
-                        .from(DataSource.database(database))
-                        .where(Meta.id.equalTo(Expression.string(docId))); // <1>
+                .select(SelectResult.all())
+                .from(DataSource.database(database))
+                .where(Meta.id.equalTo(Expression.string(docId))); // <1>
         // end::livequerybuilder[]
 
         // tag::livequery[]

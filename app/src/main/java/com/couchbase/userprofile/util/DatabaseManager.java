@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.couchbase.lite.Authenticator;
 import com.couchbase.lite.BasicAuthenticator;
 import com.couchbase.lite.CouchbaseLite;
 import com.couchbase.lite.CouchbaseLiteException;
@@ -16,6 +17,7 @@ import com.couchbase.lite.DatabaseConfiguration;
 import com.couchbase.lite.Document;
 import com.couchbase.lite.DocumentReplication;
 import com.couchbase.lite.DocumentReplicationListener;
+import com.couchbase.lite.Endpoint;
 import com.couchbase.lite.Expression;
 import com.couchbase.lite.IndexBuilder;
 import com.couchbase.lite.ListenerToken;
@@ -41,12 +43,12 @@ public class DatabaseManager {
     private static Database userprofileDatabase;
     private static Database universityDatabase;
 
-    private static String userProfileDbName = "userprofileDB";
+    private static String userProfileDbName = "userprofile";
     private static String universityDbName = "universities";
 
     private static DatabaseManager instance = null;
 
-    public static String appServicesEndpoint = "wss://jl19npwyuayza2cd.apps.cloud.couchbase.com:4984/userprofileurl";
+    public static String appServicesEndpoint = null;
 
     private ListenerToken listenerToken;
     public String currentUser = null;
@@ -71,6 +73,10 @@ public class DatabaseManager {
         return userprofileDatabase;
     }
     public static Database getUniversityDatabase() { return universityDatabase; }
+
+    public static void setAppServicesEndpoint(String appServicesUrl) {
+        appServicesEndpoint= appServicesUrl;
+    }
 
     public String getCurrentUserDocId() {
         return "user::" + currentUser;
@@ -170,9 +176,9 @@ public class DatabaseManager {
 //            url = new URI(String.format("%s/%s", appServicesEndpoint, userProfileDbName));
             // This is app service url format
             url = new URI(String.format("%s", appServicesEndpoint));
-            System.out.println("URL: "+url.toString());
+            System.out.println("URL: " + url.toString());
         } catch (URISyntaxException e) {
-            System.out.println("URL exception: "+url.toString());
+            System.out.println("URL exception: " + url.toString());
             e.printStackTrace();
         }
 
@@ -181,27 +187,10 @@ public class DatabaseManager {
         config.setType(ReplicatorType.PUSH_AND_PULL); // <2>
         config.setContinuous(true); // <3>
 
-        //TODO: certificate flag
-       /* File path = new File(context.getFilesDir().toString());
-        AssetManager assetManager = context.getAssets();
-
-        InputStream stream= null;
-        try {
-            stream = assetManager.open("userprofileurl.pem");
-            byte[] fileBytes=new byte[stream.available()];
-//            stream.read(fileBytes);
-            config.setPinnedServerCertificate(fileBytes);
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
         config.setAuthenticator(new BasicAuthenticator(username, password.toCharArray())); // <4>
         //TODO: Configure channel and uncomment
 //        config.setChannels(Arrays.asList("channel." + username)); // <5>
         // end::replicationconfig[]
-
-        File dbFile = new File(context.getFilesDir(), "universities.cblite2");
 
         // tag::replicationinit[]
         replicator = new Replicator(config);
@@ -223,20 +212,20 @@ public class DatabaseManager {
             }
         });
 
-      /*  replicatorListenerToken = replicator.addDocumentReplicationListener(new DocumentReplicationListener() {
+        replicatorListenerToken = replicator.addDocumentReplicationListener(new DocumentReplicationListener() {
 
             @Override
             public void replication(@NonNull DocumentReplication replication) {
                 Log.e("Replicated Document ", "Outside");
-               replication.getDocuments().listIterator().forEachRemaining(i->{
-                   Log.e("Replicated Document ", i.getID());
-               });
+                replication.getDocuments().listIterator().forEachRemaining(i -> {
+                    Log.e("Replicated Document ", i.getID());
+                });
             }
-         });*/
-                // end::replicationlistener[]
+        });
+        // end::replicationlistener[]
 
-                // tag::replicationstart[]
-                replicator.start();
+        // tag::replicationstart[]
+        replicator.start();
         // end::replicationstart[]
     }
 
