@@ -22,7 +22,10 @@ public class ConfigActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
+
         appServicesInput = findViewById(R.id.appServicesURLInput);
+        appServicesInput.setText("wss://apps.cloud.couchbase.com:4984/userprofileurl");
+
     }
 
     public void onClickSaveAppServicesURL(View view) {
